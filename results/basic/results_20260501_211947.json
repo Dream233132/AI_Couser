@@ -1,0 +1,30 @@
+{
+  "test_2layers_3kernel": {
+    "experiment_name": "test_2layers_3kernel",
+    "num_conv_layers": 2,
+    "kernel_size": 3,
+    "total_params": 421738,
+    "final_accuracy": 98.81,
+    "best_accuracy": 98.81,
+    "epochs": 2,
+    "learning_rate": 0.001,
+    "accuracies": [
+      98.29,
+      98.81
+    ]
+  },
+  "test_1layer_3kernel": {
+    "experiment_name": "test_1layer_3kernel",
+    "num_conv_layers": 1,
+    "kernel_size": 3,
+    "total_params": 804586,
+    "final_accuracy": 97.89,
+    "best_accuracy": 97.89,
+    "epochs": 2,
+    "learning_rate": 0.001,
+    "accuracies": [
+      97.53,
+      97.89
+    ]
+  }
+}

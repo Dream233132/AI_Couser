@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轻量化 CNN 数字识别 (前后端分离版)</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: #2c3e50; }
+        .description { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .canvas-section, .result-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        /* 这里的黑色背景模拟MNIST数据 */
+        #sketchpad {
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            cursor: crosshair;
+            background-color: black; 
+            display: block;
+            margin: 0 auto 15px auto;
+        }
+        
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-predict { background-color: #3498db; color: white; }
+        .btn-predict:hover { background-color: #2980b9; }
+        .btn-clear { background-color: #e74c3c; color: white; }
+        .btn-clear:hover { background-color: #c0392b; }
+        
+        .result-bar {
+            margin-bottom: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            height: 30px;
+        }
+        .bar-fill {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        .bar-text {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-weight: bold;
+            z-index: 1;
+        }
+        .bar-value {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>✍️ 轻量化 CNN 数字识别</h1>
+    <p class="description">使用前后端分离架构。后端运行 UltraLightCNN (仅 33k 参数，准确率 >99%)。<br>请在下方黑色画板中写一个数字 (0-9)。尽量写在正中间。</p>
+
+    <div class="container">
+        <!-- 画板区域 -->
+        <div class="canvas-section">
+            <h3 style="text-align: center;">手写输入区</h3>
+            <canvas id="sketchpad" width="280" height="280"></canvas>
+            <div class="btn-group">
+                <button class="btn-clear" onclick="clearCanvas()">🗑️ 清空</button>
+                <button class="btn-predict" onclick="predictDigit()">🔍 识别数字</button>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div class="result-section">
+            <h3>预测结果 (Top 3)</h3>
+            <div id="results-container">
+                <!-- 结果条将通过 JS 动态生成这里 -->
+                <p style="color: #95a5a6; text-align: center; margin-top: 50px;">请手写数字并点击识别...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 画板逻辑 ---
+        const canvas = document.getElementById('sketchpad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // 初始化画板 (全黑背景, 白色画笔)
+        function initCanvas() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 20; // 笔触粗细，对于280x280的画板，20比较合适
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        initCanvas();
+
+        function clearCanvas() {
+            initCanvas();
+            document.getElementById('results-container').innerHTML = '<p style="color: #95a5a6; text-align: center; margin-top: 50px;">请手写数字并点击识别...</p>';
+        }
+
+        // 鼠标事件
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        // --- 与后端通信逻辑 ---
+        async function predictDigit() {
+            const resultContainer = document.getElementById('results-container');
+            resultContainer.innerHTML = '<p style="text-align: center;">正在识别中...</p>';
+
+            // 获取画板图像为 Base64 编码
+            const dataURL = canvas.toDataURL('image/png');
+
+            try {
+                // 发送 POST 请求到 Flask 后端
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataURL })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayResults(result.predictions);
+                } else {
+                    resultContainer.innerHTML = `<p style="color: red;">错误: ${result.error}</p>`;
+                }
+            } catch (error) {
+                resultContainer.innerHTML = `<p style="color: red;">请求失败: 确保 Flask 后端正在运行。</p>`;
+                console.error(error);
+            }
+        }
+
+        function displayResults(predictions) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = ''; // 清空
+
+            predictions.forEach((pred, index) => {
+                const prob = pred.probability.toFixed(2);
+                // 概率最高的用绿色，其余用灰色
+                const bgColor = index === 0 ? '#2ecc71' : '#bdc3c7'; 
+                
+                const html = `
+                    <div class="result-bar">
+                        <div class="bar-fill" style="width: ${prob}%; background-color: ${bgColor};"></div>
+                        <span class="bar-text">数字 ${pred.class}</span>
+                        <span class="bar-value">${prob}%</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+    </script>
+</body>
+</html>
