@@ -164,16 +164,26 @@ python app.py
 │   ├── models.py                 可配置CNN模型
 │   ├── train.py                  训练和测试函数
 │   ├── advanced_models.py        高级模型（SENet/空洞/深度分离）
-│   └── lightweight_models.py     轻量化模型（UltraLightCNN）
+│   ├── lightweight_models.py     轻量化模型（UltraLightCNN）
+│   ├── adversarial.py            对抗攻击与防御
+│   ├── interpretability.py       可解释性分析(Grad-CAM)
+│   ├── incremental_learning.py   增量学习(EWC)
+│   └── data_augmentation.py      数据增强策略
+│
+├── experiments/                  # 实验脚本目录
+│   ├── run_basic.py              基础实验（层数、核大小对比）
+│   ├── run_advanced.py           高级模型对比
+│   ├── run_adversarial.py        对抗鲁棒性实验
+│   ├── run_interpretability.py   可解释性分析实验
+│   └── run_incremental.py        增量学习实验
 │
 ├── templates/
 │   └── index.html                Web前端（Canvas画板）
 ├── app.py                        Flask Web应用
 │
 ├── train_lightweight.py          轻量化模型训练脚本
-├── experiments.py                基础CNN对比实验
-├── advanced_experiments.py       高级模型对比实验
-├── quick_test.py                 快速测试脚本
+├── experiments.py                基础CNN对比实验（主脚本）
+├── advanced_experiments.py       高级模型对比实验（主脚本）
 │
 ├── experiment_results/           实验输出目录
 │   ├── lightweight_cnn.pth       最佳模型权重
@@ -181,12 +191,25 @@ python app.py
 │   ├── accuracy_comparison.png   准确率对比图
 │   └── analysis_report.txt       分析报告
 │
+├── results/                      # 分类实验结果
+│   ├── basic/                    基础实验结果
+│   ├── advanced/                 高级模型结果
+│   ├── adversarial/              对抗鲁棒性结果
+│   ├── interpretability/         可解释性分析结果
+│   └── incremental/              增量学习结果
+│
+├── docs/                         # 详细文档
+│   ├── 基础实验说明.md           基础实验详细说明
+│   ├── 非标准卷积与注意力机制说明.md
+│   ├── 轻量化与移动端部署说明.md
+│   ├── 对抗鲁棒性测试说明.md
+│   ├── 可解释性分析说明.md
+│   ├── 增量学习与数据增强说明.md
+│   └── 项目总体说明.md
+│
 ├── data/                         MNIST数据集（自动下载）
 ├── requirements.txt              依赖配置文件
-├── README.md                     项目说明
-├── 使用说明.md                   详细使用教程
-├── 创新要求说明.md               创新部分说明
-└── 项目总结.md                   项目完成总结
+└── README.md                     本文档
 ```
 
 ---
@@ -290,8 +313,18 @@ MIT License
 
 ## 📖 详细文档
 
-- **使用说明.md** - 详细的使用指南、代码示例、常见问题
-- **项目总结.md** - 项目完成情况、运行方法、预期结果
+本项目提供完整的文档体系，帮助理解和使用各个功能模块：
+
+### 核心文档
+- **[基础实验说明](docs/基础实验说明.md)** - 基础CNN实验详细说明（层数、卷积核对比）
+- **[项目总体说明](docs/项目总体说明.md)** - 项目整体架构和功能概览
+
+### 创新扩展文档
+- **[非标准卷积与注意力机制说明](docs/非标准卷积与注意力机制说明.md)** - SENet、空洞卷积、深度可分离卷积
+- **[轻量化与移动端部署说明](docs/轻量化与移动端部署说明.md)** - UltraLightCNN、ONNX导出、Web演示
+- **[对抗鲁棒性测试说明](docs/对抗鲁棒性测试说明.md)** - FGSM/PGD攻击与对抗训练
+- **[可解释性分析说明](docs/可解释性分析说明.md)** - Grad-CAM热力图可视化
+- **[增量学习与数据增强说明](docs/增量学习与数据增强说明.md)** - EWC防遗忘、数据增强策略
 
 ## 🎯 预期结果
 
@@ -321,13 +354,18 @@ MIT License
 - matplotlib
 - numpy
 
-## � 使用提示
+## 💡 使用提示
 
-1. 首次运行建议先执行 `quick_test.py` 验证环境
-2. 完整实验需要较长时间，请耐心等待
-3. 所有生成的图表和报告可直接用于课设文档
+1. **首次运行**: 建议先执行基础实验验证环境配置
+2. **训练时间**: 完整实验需要30-60分钟（CPU）或5-10分钟（GPU）
+3. **结果输出**: 所有生成的图表和报告可直接用于课设文档
+4. **文档查阅**: 每个功能模块都有对应的详细说明文档
+
+## 🤝 贡献与反馈
+
+欢迎提出问题和改进建议！如有疑问，请查阅 `docs/` 目录下的详细文档。
 
 ---
 
 **项目状态**: ✅ 完整可用  
-**最后更新**: 2026年5月1日
+**最后更新**: 2026年5月12日
