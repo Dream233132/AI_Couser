@@ -55,8 +55,8 @@ def train_epoch(
     # 迭代训练集中的每个 batch
     for batch_idx, (images, labels) in enumerate(train_loader):
         # 1. 将数据移动到指定设备（CPU 或 GPU）
-        images = images.to(device)
-        labels = labels.to(device)
+        images = images.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
         
         # 2. 清除梯度
         optimizer.zero_grad()
@@ -75,6 +75,12 @@ def train_epoch(
         
         # 7. 记录该 batch 的 loss 值
         iteration_losses.append(loss.item())
+        
+        # 8. 清理GPU缓存（如果使用GPU）
+        if device.type == 'cuda':
+            # 每100个batch清理一次，避免内存碎片
+            if (batch_idx + 1) % 100 == 0:
+                torch.cuda.empty_cache()
         
         # 打印进度信息（可选）
         if (batch_idx + 1) % 100 == 0:

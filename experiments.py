@@ -102,43 +102,60 @@ class ExperimentRunner:
         print(f"配置: {num_conv_layers}层卷积, {kernel_size}×{kernel_size}卷积核")
         print("="*80)
         
-        # 创建模型
-        model = ConfigurableCNN(
-            num_conv_layers=num_conv_layers,
-            kernel_size=kernel_size
-        )
-        
-        # 计算参数数量
-        total_params = count_parameters(model)
-        print(f"\n模型参数总数: {total_params:,}")
-        
-        # 训练模型
-        all_losses, accuracies = run_training(
-            model=model,
-            train_loader=self.train_loader,
-            test_loader=self.test_loader,
-            epochs=self.epochs,
-            learning_rate=self.learning_rate,
-            device=self.device
-        )
-        
-        # 保存结果
-        result = {
-            'experiment_name': experiment_name,
-            'num_conv_layers': num_conv_layers,
-            'kernel_size': kernel_size,
-            'total_params': total_params,
-            'all_losses': all_losses,
-            'accuracies': accuracies,
-            'final_accuracy': accuracies[-1],
-            'best_accuracy': max(accuracies),
-            'epochs': self.epochs,
-            'learning_rate': self.learning_rate
-        }
-        
-        self.results[experiment_name] = result
-        
-        return result
+        try:
+            # 创建模型
+            # ConfigurableCNN()可动态改变卷积层数和卷积核大小
+            model = ConfigurableCNN(
+                num_conv_layers=num_conv_layers,
+                kernel_size=kernel_size
+            )
+            
+            # 计算参数数量
+            total_params = count_parameters(model)
+            print(f"\n模型参数总数: {total_params:,}")
+            
+            # 训练模型
+            all_losses, accuracies = run_training(
+                model=model,
+                train_loader=self.train_loader,
+                test_loader=self.test_loader,
+                epochs=self.epochs,
+                learning_rate=self.learning_rate,
+                device=self.device
+            )
+            
+            # 保存结果
+            result = {
+                'experiment_name': experiment_name,
+                'num_conv_layers': num_conv_layers,
+                'kernel_size': kernel_size,
+                'total_params': total_params,
+                'all_losses': all_losses,
+                'accuracies': accuracies,
+                'final_accuracy': accuracies[-1],
+                'best_accuracy': max(accuracies),
+                'epochs': self.epochs,
+                'learning_rate': self.learning_rate
+            }
+            
+            self.results[experiment_name] = result
+            
+            # 清理内存
+            del model
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            return result
+            
+        except Exception as e:
+            print(f"\n❌ 实验 {experiment_name} 失败: {str(e)}")
+            print("尝试继续下一个实验...")
+            
+            # 清理资源
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            return None
     
     def experiment_b_layer_comparison(self):
         """

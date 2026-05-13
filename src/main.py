@@ -91,7 +91,8 @@ def get_data_loaders(batch_size_train=64, batch_size_test=1000, data_dir='./data
         batch_size=batch_size_train,  # 每批处理64个样本
         shuffle=True,                 # 打乱数据顺序，有利于模型训练
         num_workers=0,                # Windows下建议设为0，避免多进程问题
-        pin_memory=True if torch.cuda.is_available() else False  # GPU下提高传输速度
+        pin_memory=True if torch.cuda.is_available() else False,  # GPU下提高传输速度
+        persistent_workers=False      # 不使用持久化工作进程，避免内存泄漏
     )
     
     # 测试集DataLoader：不shuffle，保持原始顺序便于结果分析
@@ -100,7 +101,8 @@ def get_data_loaders(batch_size_train=64, batch_size_test=1000, data_dir='./data
         batch_size=batch_size_test,   # 每批处理1000个样本（整个测试集）
         shuffle=False,                # 不打乱顺序
         num_workers=0,                # Windows下建议设为0
-        pin_memory=True if torch.cuda.is_available() else False
+        pin_memory=True if torch.cuda.is_available() else False,
+        persistent_workers=False      # 不使用持久化工作进程
     )
     
     return train_loader, test_loader
