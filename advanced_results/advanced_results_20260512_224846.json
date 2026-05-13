@@ -1,0 +1,86 @@
+{
+  "标准CNN": {
+    "model_name": "标准CNN",
+    "total_params": 421738,
+    "final_accuracy": 98.88,
+    "best_accuracy": 99.13,
+    "training_time": 181.60404443740845,
+    "inference_time_ms": 0.03309440612792969,
+    "epochs": 10,
+    "accuracies": [
+      98.14,
+      98.72,
+      98.22,
+      98.92,
+      98.92999999999999,
+      98.78,
+      99.13,
+      98.77,
+      99.02,
+      98.88
+    ]
+  },
+  "SENet-CNN": {
+    "model_name": "SENet-CNN",
+    "total_params": 422378,
+    "final_accuracy": 98.98,
+    "best_accuracy": 99.11999999999999,
+    "training_time": 209.68002319335938,
+    "inference_time_ms": 0.024621248245239258,
+    "epochs": 10,
+    "accuracies": [
+      98.46000000000001,
+      97.72,
+      98.78,
+      98.85000000000001,
+      98.83,
+      98.83999999999999,
+      98.9,
+      99.11999999999999,
+      99.06,
+      98.98
+    ]
+  },
+  "DilatedCNN": {
+    "model_name": "DilatedCNN",
+    "total_params": 421738,
+    "final_accuracy": 99.1,
+    "best_accuracy": 99.17,
+    "training_time": 195.8751401901245,
+    "inference_time_ms": 0.08135604858398438,
+    "epochs": 10,
+    "accuracies": [
+      98.54,
+      98.64,
+      98.4,
+      98.59,
+      98.87,
+      98.88,
+      99.1,
+      99.17,
+      98.8,
+      99.1
+    ]
+  },
+  "DepthwiseCNN": {
+    "model_name": "DepthwiseCNN",
+    "total_params": 405642,
+    "final_accuracy": 99.03,
+    "best_accuracy": 99.11,
+    "training_time": 208.46969389915466,
+    "inference_time_ms": 0.04404449462890625,
+    "epochs": 10,
+    "accuracies": [
+      98.2,
+      98.05,
+      98.57000000000001,
+      98.83999999999999,
+      99.11,
+      99.03999999999999,
+      98.82,
+      98.92,
+      99.1,
+      99.03
+    ]
+  }
+}
